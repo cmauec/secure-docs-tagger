@@ -42,17 +42,17 @@ body {
 }
 
 .level-1 {
-    background-color: #ffc107;
+    background-color: #ffe900;
     color: #333;
 }
 
 .level-2 {
-    background-color: #dc3545;
+    background-color: #e7790d;
     color: white;
 }
 
 .level-3 {
-    background-color: #721c24;
+    background-color: #d61313;
     color: white;
 }
 
