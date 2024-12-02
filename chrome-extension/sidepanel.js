@@ -1,10 +1,19 @@
 const contentDiv = document.getElementById('content');
 const statusDiv = document.getElementById('status');
 
-function updateStatus(message, isError = false) {
-    statusDiv.textContent = message;
-    statusDiv.className = `status ${isError ? 'error' : ''}`;
-    console.log(`Status updated: ${message} (${isError ? 'error' : 'success'})`);
+function updateStatus(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = document.createElement('div');
+    logEntry.className = 'status-entry';
+    logEntry.innerHTML = `${message}`;
+
+    // Add new entry at the bottom
+    statusDiv.appendChild(logEntry);
+
+    // Scroll to the bottom
+    statusDiv.scrollTop = statusDiv.scrollHeight;
+
+    console.log(`Status: ${message}`);
 }
 
 function updateContent(content, title = '', classification = null) {
@@ -84,14 +93,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         updateStatus(message.status);
     } else if (message.type === 'contentUpdate') {
         if (message.error) {
-            updateStatus(message.error, true);
+            updateStatus(`Error: ${message.error}`);
             updateContent('', message.title);
         } else {
             updateContent('', message.title, message.classification);
-            updateStatus('Document analyzed successfully');
         }
     }
 });
 
 // Initial status
-updateStatus('Waiting for Google Doc...'); 
+updateStatus('Extension loaded successfully'); 

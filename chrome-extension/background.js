@@ -101,6 +101,11 @@ async function processGoogleDoc(tab) {
             return;
         }
 
+        chrome.runtime.sendMessage({
+            type: 'statusUpdate',
+            status: 'Loading document...'
+        });
+
         console.log('Processing tab:', tab);
 
         if (tab.url && tab.url.includes('docs.google.com/document')) {
@@ -109,10 +114,6 @@ async function processGoogleDoc(tab) {
 
             if (documentId) {
                 console.log('Document ID:', documentId);
-                chrome.runtime.sendMessage({
-                    type: 'statusUpdate',
-                    status: `Loading document: ${tab.title}`
-                });
 
                 const token = await getAuthToken();
                 if (token) {
@@ -120,12 +121,23 @@ async function processGoogleDoc(tab) {
                     if (docData) {
                         const content = extractTextFromDoc(docData);
 
+                        chrome.runtime.sendMessage({
+                            type: 'statusUpdate',
+                            status: 'Initializing AI model...'
+                        });
+
                         // Check AI capabilities
                         const capabilities = await chrome.aiOriginTrial.languageModel.capabilities();
                         console.log('AI capabilities:', capabilities.available);
 
+                        let classification = null;
                         if (capabilities.available) {
                             try {
+                                chrome.runtime.sendMessage({
+                                    type: 'statusUpdate',
+                                    status: 'Creating AI session...'
+                                });
+
                                 // Create AI session for classification
                                 const session = await chrome.aiOriginTrial.languageModel.create({
                                     systemPrompt: `Classify the confidentiality level of a document into one of the four provided categories: Public (0), Internal Use (1), Restrictive (2), Confidential (3).
@@ -152,12 +164,16 @@ async function processGoogleDoc(tab) {
                                     language: 'en'
                                 });
 
+                                chrome.runtime.sendMessage({
+                                    type: 'statusUpdate',
+                                    status: 'Analyzing document content...'
+                                });
+
                                 // Get classification from AI
                                 const aiResponse = await session.prompt(content);
                                 console.log('Raw AI Response:', aiResponse);
 
                                 // Parse the response to ensure it's valid JSON
-                                let classification;
                                 try {
                                     // If the response is already an object, use it directly
                                     if (typeof aiResponse === 'object' && aiResponse !== null) {
@@ -180,6 +196,11 @@ async function processGoogleDoc(tab) {
                                         throw new Error('Invalid confidentiality level');
                                     }
 
+                                    chrome.runtime.sendMessage({
+                                        type: 'statusUpdate',
+                                        status: 'Document classified successfully'
+                                    });
+
                                     console.log('Parsed Classification:', classification);
                                 } catch (parseError) {
                                     console.error('Error parsing AI response:', parseError);
@@ -188,18 +209,22 @@ async function processGoogleDoc(tab) {
                                         'Justification': 'Error processing classification. Defaulting to Public level.'
                                     };
                                 }
-
-                                chrome.runtime.sendMessage({
-                                    type: 'contentUpdate',
-                                    error: content ? null : 'Failed to load document content',
-                                    title: tab.title || docData.title,
-                                    documentId: documentId,
-                                    classification: classification
-                                });
                             } catch (aiError) {
                                 console.error('Error in AI classification:', aiError);
+                                chrome.runtime.sendMessage({
+                                    type: 'statusUpdate',
+                                    status: 'Error in AI classification'
+                                });
                             }
                         }
+
+                        chrome.runtime.sendMessage({
+                            type: 'contentUpdate',
+                            error: content ? null : 'Failed to load document content',
+                            title: tab.title || docData.title,
+                            documentId: documentId,
+                            classification: classification
+                        });
                     }
                 }
             } else {

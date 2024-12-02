@@ -91,12 +91,44 @@ body {
 }
 
 .status {
-    padding: 8px 12px;
+    padding: 12px;
     margin-bottom: 16px;
     border-radius: 8px;
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #f8f9fa;
+    font-size: 13px;
+    max-height: 120px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+}
+
+.status-entry {
+    padding: 4px 0;
     color: #666;
-    font-size: 14px;
+    font-family: monospace;
+    display: flex;
+    align-items: center;
+}
+
+@keyframes loading {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.status-entry::before {
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+    border: 2px solid #28a745;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: loading 1s linear infinite;
 }
 
 .roboto-regular {
