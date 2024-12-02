@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "Secure Docs Tagger",
+    "version": "1.0",
+    "description": "Shows the level of confidentiality of the document",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuIFCxA2SwF42FaXANxVFYFUN3fa/+TZjuc6hpqzW02QD1m4UMfOaB/+9I7TXN20dB7Vt4d50zvJQXudDHETPlU9LLzkkTDy3rbj/uahqU4oCTg2wbhO5aUwszA1PrqFiEahbkDRMKFTIijKhBJXZY2arGUpeBp0jNO6Ar9hwHORS6CdKcN0cvwsmRC/x8jrMNFqBcRQ9C9VEsUly2Vz+7qwvf4bFaBHc17lD4R2zgVAxOq+sXvz/fSanLM8Q07ikcsKcUNmK0P9QRNgszEgfMEbTznNYQ45r+cSRTU0cl9jj9oO6eFjRCw8t6q+sCwGY4Z2ahkm87D0yS8jtqcfrlQIDAQAB",
+    "permissions": [
+        "sidePanel",
+        "activeTab",
+        "scripting",
+        "identity",
+        "identity.email",
+        "tabs",
+        "aiLanguageModelOriginTrial"
+    ],
+    "trial_tokens": [
+        "Ar0l2FZ0j2zipEGuk9wY554BOTakAUf/G929dGsCseav7i7yJDVIgtEhy5LjCuXWd/n6GwXlE648WciCVgwpWwYAAAB4eyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vam9hY2JoaWpjZ2FoZ2hhZ2VnYWxjYW1nYmFwZGVsaG0iLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElGb3JFeHRlbnNpb24iLCJleHBpcnkiOjE3NjA0ODYzOTl9"
+    ],
+    "host_permissions": [
+        "https://docs.google.com/*"
+    ],
+    "action": {
+        "default_title": "Secure Docs Tagger"
+    },
+    "oauth2": {
+        "client_id": "YOUR-CLIENT-ID.apps.googleusercontent.com.apps.googleusercontent.com",
+        "scopes": [
+            "https://www.googleapis.com/auth/documents.readonly"
+        ]
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "side_panel": {
+        "default_path": "sidepanel.html"
+    },
+    "icons": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+    }
+}
