@@ -5,7 +5,7 @@ function updateStatus(message) {
     const timestamp = new Date().toLocaleTimeString();
     const logEntry = document.createElement('div');
     logEntry.className = 'status-entry';
-    logEntry.innerHTML = `${message}`;
+    logEntry.innerHTML = `${timestamp}: ${message}`;
 
     // Add new entry at the bottom
     statusDiv.appendChild(logEntry);

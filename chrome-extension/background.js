@@ -64,9 +64,17 @@ async function fetchDocumentContent(documentId, token) {
 
         const data = await response.json();
         console.log('Document fetched successfully');
+        chrome.runtime.sendMessage({
+            type: 'statusUpdate',
+            status: 'Document fetched successfully'
+        });
         return data;
     } catch (error) {
         console.error('Error fetching document:', error);
+        chrome.runtime.sendMessage({
+            type: 'statusUpdate',
+            status: 'Error fetching document'
+        });
         return null;
     }
 }
@@ -165,7 +173,7 @@ async function processGoogleDoc(tab) {
 
                             chrome.runtime.sendMessage({
                                 type: 'statusUpdate',
-                                status: 'Analyzing document content...'
+                                status: 'Analyzing document content'
                             });
 
                             // Get classification from AI
