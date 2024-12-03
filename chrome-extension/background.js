@@ -131,16 +131,15 @@ async function processGoogleDoc(tab) {
                         console.log('AI capabilities:', capabilities.available);
 
                         let classification = null;
-                        if (capabilities.available) {
-                            try {
-                                chrome.runtime.sendMessage({
-                                    type: 'statusUpdate',
-                                    status: 'Creating AI session...'
-                                });
+                        try {
+                            chrome.runtime.sendMessage({
+                                type: 'statusUpdate',
+                                status: 'Creating AI session...'
+                            });
 
-                                // Create AI session for classification
-                                const session = await chrome.aiOriginTrial.languageModel.create({
-                                    systemPrompt: `Classify the confidentiality level of a document into one of the four provided categories: Public (0), Internal Use (1), Restrictive (2), Confidential (3).
+                            // Create AI session for classification
+                            const session = await chrome.aiOriginTrial.languageModel.create({
+                                systemPrompt: `Classify the confidentiality level of a document into one of the four provided categories: Public (0), Internal Use (1), Restrictive (2), Confidential (3).
                                     Carefully analyze the content of the document and determine the most appropriate level, providing a clear and logical justification for why that level was assigned. Ensure that the justification explains how the document's content aligns with the selected category, considering aspects such as disclosure risk, information sensitivity, and intended access scope.
                                     # Confidentiality Levels
                                     - **Public (0)**: Information that can be made available to anyone and poses no risk if disclosed.
@@ -161,61 +160,60 @@ async function processGoogleDoc(tab) {
                                     - You must respond ONLY with a JSON object in the exact format specified above.
                                     - Do not include any additional text or explanation outside the JSON object.
                                     - The "Confidentiality Level" must be a number (0, 1, 2, or 3), not a string.`,
-                                    language: 'en'
-                                });
+                                language: 'en'
+                            });
 
-                                chrome.runtime.sendMessage({
-                                    type: 'statusUpdate',
-                                    status: 'Analyzing document content...'
-                                });
+                            chrome.runtime.sendMessage({
+                                type: 'statusUpdate',
+                                status: 'Analyzing document content...'
+                            });
 
-                                // Get classification from AI
-                                const aiResponse = await session.prompt(content);
-                                console.log('Raw AI Response:', aiResponse);
+                            // Get classification from AI
+                            const aiResponse = await session.prompt(content);
+                            console.log('Raw AI Response:', aiResponse);
 
-                                // Parse the response to ensure it's valid JSON
-                                try {
-                                    // If the response is already an object, use it directly
-                                    if (typeof aiResponse === 'object' && aiResponse !== null) {
-                                        classification = aiResponse;
-                                    } else {
-                                        // Try to parse the response as JSON
-                                        classification = JSON.parse(aiResponse);
-                                    }
-
-                                    // Validate the response format
-                                    if (!('Confidentiality Level' in classification) || !('Justification' in classification)) {
-                                        throw new Error('Invalid response format');
-                                    }
-
-                                    // Ensure Confidentiality Level is a number
-                                    classification['Confidentiality Level'] = Number(classification['Confidentiality Level']);
-                                    if (isNaN(classification['Confidentiality Level']) ||
-                                        classification['Confidentiality Level'] < 0 ||
-                                        classification['Confidentiality Level'] > 3) {
-                                        throw new Error('Invalid confidentiality level');
-                                    }
-
-                                    chrome.runtime.sendMessage({
-                                        type: 'statusUpdate',
-                                        status: 'Document classified successfully'
-                                    });
-
-                                    console.log('Parsed Classification:', classification);
-                                } catch (parseError) {
-                                    console.error('Error parsing AI response:', parseError);
-                                    classification = {
-                                        'Confidentiality Level': 0,
-                                        'Justification': 'Error processing classification. Defaulting to Public level.'
-                                    };
+                            // Parse the response to ensure it's valid JSON
+                            try {
+                                // If the response is already an object, use it directly
+                                if (typeof aiResponse === 'object' && aiResponse !== null) {
+                                    classification = aiResponse;
+                                } else {
+                                    // Try to parse the response as JSON
+                                    classification = JSON.parse(aiResponse);
                                 }
-                            } catch (aiError) {
-                                console.error('Error in AI classification:', aiError);
+
+                                // Validate the response format
+                                if (!('Confidentiality Level' in classification) || !('Justification' in classification)) {
+                                    throw new Error('Invalid response format');
+                                }
+
+                                // Ensure Confidentiality Level is a number
+                                classification['Confidentiality Level'] = Number(classification['Confidentiality Level']);
+                                if (isNaN(classification['Confidentiality Level']) ||
+                                    classification['Confidentiality Level'] < 0 ||
+                                    classification['Confidentiality Level'] > 3) {
+                                    throw new Error('Invalid confidentiality level');
+                                }
+
                                 chrome.runtime.sendMessage({
                                     type: 'statusUpdate',
-                                    status: 'Error in AI classification'
+                                    status: 'Document classified successfully'
                                 });
+
+                                console.log('Parsed Classification:', classification);
+                            } catch (parseError) {
+                                console.error('Error parsing AI response:', parseError);
+                                classification = {
+                                    'Confidentiality Level': 0,
+                                    'Justification': 'Error processing classification. Defaulting to Public level.'
+                                };
                             }
+                        } catch (aiError) {
+                            console.error('Error in AI classification:', aiError);
+                            chrome.runtime.sendMessage({
+                                type: 'statusUpdate',
+                                status: 'Error in AI classification'
+                            });
                         }
 
                         chrome.runtime.sendMessage({
