@@ -102,4 +102,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Initial status
-updateStatus('Extension loaded successfully'); 
+updateStatus('Starting classification'); 
